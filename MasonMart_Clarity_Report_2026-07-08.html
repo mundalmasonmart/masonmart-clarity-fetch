@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MasonMart Clarity Report — 07/06/2026 12:00 AM - 07/08/2026 11:59 PM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,sans-serif;background:#f8f7f4;color:#1a1a1a;line-height:1.7}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+.header{text-align:center;padding:2.5rem 0 2rem;border-bottom:2px solid #1a1a1a;margin-bottom:2rem}
+.header h1{font-size:28px;font-weight:600;letter-spacing:-0.5px}
+.header .subtitle{color:#6b6a66;font-size:14px;margin-top:6px}
+.header .date-badge{display:inline-block;background:#2a78d6;color:#fff;font-size:12px;padding:4px 14px;border-radius:20px;margin-top:10px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2.5rem}
+.kpi{background:#fff;border:1px solid #e5e4df;border-radius:10px;padding:1rem 1.1rem}
+.kpi .label{font-size:12px;color:#898781;text-transform:uppercase;letter-spacing:0.5px}
+.kpi .value{font-size:26px;font-weight:600;margin-top:2px}
+.kpi .delta{font-size:11px;margin-top:2px}
+.section{margin-bottom:2.5rem}
+.section-title{font-size:18px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.section-title .num{background:#1a1a1a;color:#fff;font-size:12px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.section-desc{font-size:14px;color:#6b6a66;margin-bottom:1rem}
+.chart-box{background:#fff;border:1px solid #e5e4df;border-radius:10px;padding:1.25rem;margin-bottom:1rem}
+.chart-title{font-size:14px;font-weight:600;margin-bottom:12px}
+.chart-wrap{position:relative;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:#6b6a66;margin-bottom:10px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend .dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.conclusion{background:#fff;border-left:3px solid #2a78d6;border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin-top:10px;margin-bottom:6px;font-size:14px}
+.conclusion strong{color:#2a78d6}
+.conclusion.warn{border-left-color:#d85a30}.conclusion.warn strong{color:#d85a30}
+.conclusion.good{border-left-color:#1d9e75}.conclusion.good strong{color:#1d9e75}
+.conclusion.critical{border-left-color:#e34948}.conclusion.critical strong{color:#e34948}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.data-table th{text-align:left;font-weight:600;padding:8px 10px;border-bottom:2px solid #1a1a1a;font-size:12px;text-transform:uppercase;letter-spacing:0.4px;color:#52514e}
+.data-table td{padding:8px 10px;border-bottom:1px solid #e5e4df}
+.data-table tr:last-child td{border-bottom:none}
+.data-table .highlight{background:#fef3e8;font-weight:600}
+.priority-box{background:#fff;border:1px solid #e5e4df;border-radius:10px;padding:1.25rem;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start}
+.priority-num{color:#fff;font-size:14px;font-weight:700;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.priority-content h4{font-size:14px;font-weight:600;margin-bottom:3px}
+.priority-content p{font-size:13px;color:#52514e}
+.score-meter{height:10px;background:#e5e4df;border-radius:5px;overflow:hidden;margin:6px 0}
+.score-fill{height:100%;border-radius:5px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.footer{text-align:center;padding:2rem 0 1rem;border-top:1px solid #e5e4df;margin-top:2rem;color:#898781;font-size:12px}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <h1>MasonMart website behavior report</h1>
+  <div class="subtitle">Microsoft Clarity data analysis — masonmart.in</div>
+  <div class="date-badge">07/06/2026 12:00 AM - 07/08/2026 11:59 PM (77 sessions)</div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="label">Real sessions</div><div class="value">77</div><div class="delta"><span style="color:#898781;">— new</span></div></div>
+  <div class="kpi"><div class="label">Pages / session</div><div class="value">2.9</div><div class="delta"><span style="color:#898781;">— new</span></div></div>
+  <div class="kpi"><div class="label">Avg scroll depth</div><div class="value">63.6%</div><div class="delta"><span style="color:#898781;">— new</span></div></div>
+  <div class="kpi"><div class="label">Quick-back rate</div><div class="value" style="color:#d85a30;">22.1%</div><div class="delta">17 of 77 sessions</div></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="num">1</span> Device and browser split</div>
+  <div class="two-col">
+    <div class="chart-box"><div class="chart-title">Mobile vs desktop</div>
+      <div class="legend"><span><span class="dot" style="background:#2a78d6"></span>Mobile 62.3%</span><span><span class="dot" style="background:#73726c"></span>Desktop 37.7%</span></div>
+      <div class="chart-wrap" style="height:200px;"><canvas id="deviceChart"></canvas></div></div>
+    <div class="chart-box"><div class="chart-title">Browser breakdown</div>
+      <div class="chart-wrap" style="height:200px;"><canvas id="browserChart"></canvas></div></div>
+  </div>
+  <div class="conclusion "><strong>62.3% of traffic is mobile.</strong> Your visitors are predominantly on phones. Every UX fix should be tested on mobile first.</div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="num">2</span> Traffic sources</div>
+  <div class="chart-box"><div class="chart-title">Session sources</div>
+    <div class="legend"><span><span class="dot" style="background:#2a78d6"></span>www.masonmart.in (39)</span><span><span class="dot" style="background:#1baf7a"></span>www.google.com (34)</span><span><span class="dot" style="background:#eda100"></span>com.google.android.googlequicksearchbox (1)</span><span><span class="dot" style="background:#4a3aa7"></span>l.instagram.com (1)</span></div>
+    <div class="chart-wrap" style="height:220px;"><canvas id="sourceChart"></canvas></div></div>
+  
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="num">3</span> Most visited pages</div>
+  <div class="chart-box"><div class="chart-title">Sessions by page</div>
+    <div class="chart-wrap" style="height:376px;"><canvas id="pagesChart"></canvas></div></div>
+  <div class="conclusion "><strong>/ carries 45.5% of traffic.</strong> Highest-leverage page to optimize.</div>
+<div class="conclusion "><strong>Site search usage is low (3 sessions).</strong> Check if search bar is visible on mobile.</div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="num">4</span> Shopping funnel</div>
+  <div class="chart-box"><div class="chart-title">Smart events by session count</div>
+    <div class="chart-wrap" style="height:352px;"><canvas id="funnelChart"></canvas></div></div>
+  <table class="data-table"><thead><tr><th>Step</th><th>Sessions</th><th>% of total</th><th>Drop</th></tr></thead><tbody><tr><td>Product viewed</td><td>14</td><td>18.2%</td><td>—</td></tr>
+<tr><td>Add to cart</td><td>9</td><td>11.7%</td><td>-36%</td></tr>
+<tr><td>Cart viewed</td><td>6</td><td>7.8%</td><td>-33%</td></tr>
+<tr><td>Begin checkout</td><td>3</td><td>3.9%</td><td>-50%</td></tr>
+<tr><td>Checkout</td><td>7</td><td>9.1%</td><td>--133%</td></tr>
+<tr class="highlight"><td>Request quote</td><td>1</td><td>1.3%</td><td>—</td></tr>
+<tr><td>Submit form</td><td>3</td><td>3.9%</td><td>—</td></tr>
+<tr><td>Contact us</td><td>1</td><td>1.3%</td><td>—</td></tr>
+<tr><td>Outbound click</td><td>5</td><td>6.5%</td><td>—</td></tr>
+</tbody></table>
+  <div class="conclusion critical"><strong>Request Quote nearly invisible — only 1 session(s).</strong> 14 viewed products, 9 added to cart, but almost nobody requested a quote. Check visibility on mobile product pages.</div>
+<div class="conclusion warn"><strong>Cart-to-checkout retention: 33%.</strong> 3 of 9 add-to-cart sessions began checkout.</div>
+<div class="conclusion warn"><strong>Outbound clicks in 5 sessions.</strong> Are these WhatsApp (conversions) or people leaving? Check recordings.</div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="num">5</span> Friction signals</div>
+  <div class="chart-box"><div class="chart-title">Friction events</div>
+    <div class="chart-wrap" style="height:220px;"><canvas id="frictionChart"></canvas></div></div>
+  <div class="conclusion warn"><strong>Quick-back clicks at 22.1% — worth monitoring.</strong></div>
+<div class="conclusion good"><strong>Zero rage clicks — nothing is frustrating users.</strong> No broken buttons detected.</div>
+<div class="conclusion "><strong>Dead clicks in 5 sessions.</strong> Elements being clicked that aren't interactive.</div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="num">6</span> Performance and technical health</div>
+  <div class="two-col">
+    <div class="chart-box"><div class="chart-title">Performance score</div>
+      <div style="font-size:42px;font-weight:700;text-align:center;padding:10px 0;">81<span style="font-size:18px;color:#898781;">/100</span></div>
+      <div class="score-meter"><div class="score-fill" style="width:81.1%;background:#eda100;"></div></div>
+      <div style="font-size:12px;color:#898781;text-align:center;"><span style="color:#898781;">— new</span></div></div>
+    <div class="chart-box"><div class="chart-title">Core Web Vitals</div>
+      <table class="data-table" style="margin-top:0;">
+        <tr><td>LCP</td><td style="font-weight:600;color:#d85a30;">3.117s</td><td style="font-size:11px;"><span style="color:#898781;">— new</span></td></tr>
+        <tr><td>INP</td><td style="font-weight:600;color:#d85a30;">280ms</td><td style="font-size:11px;"><span style="color:#898781;">— new</span></td></tr>
+        <tr><td>CLS</td><td style="font-weight:600;color:#1d9e75;">0.001s</td><td style="font-size:11px;color:#898781;">Target: &lt;0.1</td></tr>
+      </table></div>
+  </div>
+  <div class="chart-box"><div class="chart-title">JS errors (7 sessions)</div><div class="chart-wrap" style="height:200px;"><canvas id="jsErrorChart"></canvas></div></div>
+  <div class="conclusion warn"><strong>LCP at 3.117s exceeds Google's 2.5s threshold.</strong> Affects quick-back rate and Google Ads Quality Score.</div>
+<div class="conclusion warn"><strong>INP at 280.0ms exceeds 200ms threshold.</strong></div>
+<div class="conclusion good"><strong>CLS at 0.001 — excellent, no layout shift.</strong></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="num">7</span> Bot traffic</div>
+  <div class="chart-box"><div class="chart-title">Bot type breakdown</div>
+    <div class="chart-wrap" style="height:220px;"><canvas id="botChart"></canvas></div></div>
+  <table class="data-table"><thead><tr><th>Bot type</th><th>Sessions</th><th>Concern</th></tr></thead><tbody><tr><td>Suspicious interaction</td><td>141</td><td style="color:#d85a30;">Monitor</td></tr>
+<tr><td>Suspicious device</td><td>116</td><td style="color:#d85a30;">Monitor</td></tr>
+<tr><td>Suspicious network</td><td>23</td><td style="color:#898781;">Low</td></tr>
+<tr><td>Web scraper</td><td>2</td><td style="color:#898781;">Low</td></tr>
+<tr><td>Other</td><td>1</td><td style="color:#898781;">Low</td></tr>
+<tr style="background:#eaf3de;"><td><strong>PPC ad fraud</strong></td><td><strong>0</strong></td><td style="color:#1d9e75;"><strong>Clear</strong></td></tr>
+</tbody></table>
+  <div class="conclusion good"><strong>Zero PPC ad fraud — your ad spend is clean.</strong></div>
+<div class="conclusion "><strong>Bots (141) outnumber real visitors (77).</strong> Already excluded from your data — just noise.</div>
+</div>
+
+
+
+<div class="section">
+  <div class="section-title" style="font-size:20px;">Priority actions</div>
+  <div class="section-desc">Ranked by potential revenue impact</div>
+  <div class="priority-box"><div class="priority-num" style="background:#e34948;">1</div><div class="priority-content"><h4>Fix or promote Request Quote on mobile</h4><p>Almost nobody is using it. Check if the button is above the fold on mobile product pages.</p></div></div>
+<div class="priority-box"><div class="priority-num" style="background:#d85a30;">2</div><div class="priority-content"><h4>Investigate the 22% quick-back rate</h4><p>Watch session recordings. Focus on homepage and collection pages.</p></div></div>
+<div class="priority-box"><div class="priority-num" style="background:#eda100;">3</div><div class="priority-content"><h4>Improve page load speed (LCP: 3.117s → target 2.5s)</h4><p>Check large images, heavy third-party scripts, PageFly components.</p></div></div>
+<div class="priority-box"><div class="priority-num" style="background:#2a78d6;">4</div><div class="priority-content"><h4>Separate Google Ads vs organic in Clarity</h4><p>Use UTM parameters to distinguish paid vs organic — critical for campaign decisions.</p></div></div>
+<div class="priority-box"><div class="priority-num" style="background:#898781;">5</div><div class="priority-content"><h4>Check outbound-click sessions</h4><p>WhatsApp = conversion. Competitor link = lost traffic. Find out which.</p></div></div>
+<div class="priority-box"><div class="priority-num" style="background:#898781;">6</div><div class="priority-content"><h4>Review JavaScript errors</h4><p>7 sessions had errors. Check browser console on main pages.</p></div></div>
+
+</div>
+
+<div class="footer">
+  MasonMart Clarity Report — Generated July 08, 2026 · Data: 07/06/2026 12:00 AM - 07/08/2026 11:59 PM · 77 sessions<br>
+  Generated by clarity_report.py · No API keys or cloud services required · Data stored in clarity_history.sqlite
+</div>
+</div>
+
+<script>
+new Chart(document.getElementById('deviceChart'),{type:'doughnut',data:{labels:['Mobile','Desktop'],datasets:[{data:[48,29],backgroundColor:['#2a78d6','#73726c'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{display:false}}}});
+new Chart(document.getElementById('browserChart'),{type:'bar',data:{labels:["ChromeMobile", "Chrome", "MobileSafari", "Edge", "InstagramApp", "SamsungInternet", "GoogleApp"],datasets:[{data:[32, 24, 12, 5, 2, 1, 1],backgroundColor:["#2a78d6", "#3987e5", "#1baf7a", "#eda100", "#4a3aa7", "#e87ba4", "#73726c"],borderRadius:4,maxBarThickness:18}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'#e5e4df'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+new Chart(document.getElementById('sourceChart'),{type:'doughnut',data:{labels:["www.masonmart.in", "www.google.com", "com.google.android.googlequicksearchbox", "l.instagram.com"],datasets:[{data:[39, 34, 1, 1],backgroundColor:["#2a78d6", "#1baf7a", "#eda100", "#4a3aa7"],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{display:false}}}});
+new Chart(document.getElementById('pagesChart'),{type:'bar',data:{labels:["/", "/collections", "/cart", "/collections/all", "/collections/cement", "/collections/aac-block", "/products/kaneria-aac-block", "/search", "/collections/featured-products", "/products/laticrete-grout-floater-4size", "/collections/ready-mix-plaster", "/collections/tile-adhesive"],datasets:[{data:[35, 12, 7, 7, 6, 5, 5, 5, 4, 4, 3, 3],backgroundColor:[35, 12, 7, 7, 6, 5, 5, 5, 4, 4, 3, 3].map((v,i)=>i===0?'#2a78d6':'#b5d4f4'),borderRadius:4,maxBarThickness:18}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'#e5e4df'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+new Chart(document.getElementById('funnelChart'),{type:'bar',data:{labels:["Product viewed", "Add to cart", "Checkout", "Cart viewed", "Outbound click", "Begin checkout", "Submit form", "Search", "Show more", "Contact us", "Request quote", "Remove from cart"],datasets:[{data:[14, 9, 7, 6, 5, 3, 3, 3, 2, 1, 1, 1],backgroundColor:[14, 9, 7, 6, 5, 3, 3, 3, 2, 1, 1, 1].map((v,i)=>{var n=["Product viewed", "Add to cart", "Checkout", "Cart viewed", "Outbound click", "Begin checkout", "Submit form", "Search", "Show more", "Contact us", "Request quote", "Remove from cart"][i];return n==='Request quote'?'#e34948':'#2a78d6';}),borderRadius:4,maxBarThickness:18}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'#e5e4df'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+new Chart(document.getElementById('frictionChart'),{type:'bar',data:{labels:["Rage clicks", "Dead click", "Excessive scrolling", "Quick back click"],datasets:[{data:[0, 5, 0, 17],backgroundColor:["#1baf7a", "#eda100", "#1baf7a", "#d85a30"],borderRadius:4,maxBarThickness:24}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#e5e4df'},ticks:{stepSize:5}},x:{grid:{display:false}}}}});
+var jsC=document.getElementById('jsErrorChart');
+if(jsC){new Chart(jsC,{type:'bar',data:{labels:["script error.", "can't find variable: _autofill", "cannot read properties of null", "resizeobserver loop completed "],datasets:[{data:[3, 2, 1, 1],backgroundColor:['#e34948','#d85a30','#d85a30','#eda100','#eda100','#898781'].slice(0,4),borderRadius:4,maxBarThickness:24}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#e5e4df'},ticks:{stepSize:1}},x:{grid:{display:false}}}}});}
+new Chart(document.getElementById('botChart'),{type:'bar',data:{labels:["Suspicious interaction", "Suspicious device", "Suspicious network", "Web scraper", "PPC ad fraud", "Other"],datasets:[{data:[141, 116, 23, 2, 0, 1],backgroundColor:[141, 116, 23, 2, 0, 1].map((v,i)=>i===4?'#1baf7a':'#73726c'),borderRadius:4,maxBarThickness:22}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#e5e4df'}},x:{grid:{display:false},ticks:{font:{size:10},maxRotation:45}}}}});
+
+</script>
+</body>
+</html>
