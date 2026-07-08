@@ -32,11 +32,18 @@ jobs:
         env:
           CLARITY_API_TOKEN: ${{ secrets.CLARITY_API_TOKEN }}
 
+      - name: Create last run marker
+        if: success()
+        run: |
+          echo "Last successful run UTC: $(date -u)" > last_successful_run.txt
+          echo "Last successful run IST: $(TZ='Asia/Kolkata' date)" >> last_successful_run.txt
+
       - name: Show generated files
         if: always()
         run: |
           echo "### Clarity Fetch Run" >> $GITHUB_STEP_SUMMARY
-          echo "Run time UTC: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "Run time UTC: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "Run time IST: $(TZ='Asia/Kolkata' date)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Generated files:" >> $GITHUB_STEP_SUMMARY
           ls -lh >> $GITHUB_STEP_SUMMARY
@@ -51,12 +58,22 @@ jobs:
             *.xlsx
             *.html
             *.sqlite
+            last_successful_run.txt
 
       - name: Commit updated files
         if: success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add *.sqlite *.csv *.xlsx *.html || true
-          git commit -m "Update Clarity daily report" || echo "No changes to commit"
-          git push
+
+          git add -A
+
+          echo "Git status before commit:"
+          git status --short
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update Clarity daily report"
+            git push
+          fi
