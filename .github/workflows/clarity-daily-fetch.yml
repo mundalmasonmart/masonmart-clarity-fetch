@@ -3,7 +3,7 @@ name: Clarity Daily Fetch
 'on':
   workflow_dispatch:
   schedule:
-    - cron: "50 8 * * *"
+    - cron: "50 8 * * *"   # 14:20 IST daily
 
 permissions:
   contents: write
@@ -32,6 +32,15 @@ jobs:
         env:
           CLARITY_API_TOKEN: ${{ secrets.CLARITY_API_TOKEN }}
 
+      - name: Show generated files
+        if: always()
+        run: |
+          echo "### Clarity Fetch Run" >> $GITHUB_STEP_SUMMARY
+          echo "Run time UTC: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Generated files:" >> $GITHUB_STEP_SUMMARY
+          ls -lh >> $GITHUB_STEP_SUMMARY
+
       - name: Upload report files
         if: always()
         uses: actions/upload-artifact@v4
@@ -42,3 +51,12 @@ jobs:
             *.xlsx
             *.html
             *.sqlite
+
+      - name: Commit updated files
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add *.sqlite *.csv *.xlsx *.html || true
+          git commit -m "Update Clarity daily report" || echo "No changes to commit"
+          git push
