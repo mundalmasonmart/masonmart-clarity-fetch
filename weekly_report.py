@@ -147,6 +147,11 @@ def load_dimension(conn, dim_name, dates):
         for block in blocks:
             if not isinstance(block, dict):
                 continue
+            # Only "Traffic" carries real session counts per dimension value;
+            # the other metric blocks (DeadClickCount, ScrollDepth, ...) use
+            # a different, unrelated field shape and would corrupt the total.
+            if block.get("metricName") != "Traffic":
+                continue
             for item in block.get("information", []):
                 if not isinstance(item, dict):
                     continue
@@ -159,6 +164,9 @@ def load_dimension(conn, dim_name, dates):
                             break
                 if value in (None, ""):
                     continue
+                if dim_name.lower() == "url":
+                    # collapse query-string variants of the same page
+                    value = value.split("?", 1)[0]
                 try:
                     s = int(item.get("totalSessionCount", 0) or 0)
                 except (ValueError, TypeError):
@@ -168,23 +176,28 @@ def load_dimension(conn, dim_name, dates):
 
 
 def top_movers(conn, dim_name, this_dates, last_dates, limit=8):
-    """Return list of dicts for the top values this week with WoW delta."""
+    """Return list of dicts for the top values this week with WoW delta.
+
+    If there's no last-week data at all, prev/delta are left as None rather
+    than 0, so the report never implies a comparison that doesn't exist.
+    """
     this = load_dimension(conn, dim_name, this_dates)
-    last = load_dimension(conn, dim_name, last_dates)
+    last = load_dimension(conn, dim_name, last_dates) if last_dates else None
     if not this:
         return []
     ranked = sorted(this.items(), key=lambda kv: kv[1], reverse=True)[:limit]
     out = []
     for value, cur in ranked:
-        prev = last.get(value, 0)
-        delta = cur - prev
-        pct = (delta / prev * 100) if prev > 0 else (100.0 if cur > 0 else 0.0)
+        if last is None:
+            prev, delta = None, None
+        else:
+            prev = last.get(value, 0)
+            delta = cur - prev
         out.append({
             "value": value,
             "sessions": cur,
             "prev": prev,
             "delta": delta,
-            "pct": round(pct, 0),
         })
     return out
 
@@ -249,11 +262,46 @@ def kpi_row(label, this, last, fmt="{:,}"):
         esc(label), lv, tv, cell)
 
 
+def solo_kpi_table(this):
+    """Absolute-numbers table for when there's no prior week to compare to."""
+    return (
+        "<table><thead><tr><th>Metric</th><th>This week</th></tr></thead><tbody>"
+        "<tr><td>Sessions</td><td>{:,}</td></tr>"
+        "<tr><td>Unique users</td><td>{:,}</td></tr>"
+        "<tr><td>Pages / session</td><td>{:.2f}</td></tr>"
+        "<tr><td>Bot sessions</td><td>{:,}</td></tr>"
+        "<tr><td>Bot share</td><td>{:.1f}%</td></tr>"
+        "</tbody></table>".format(
+            this["sessions"], this["users"], this["pps"],
+            this["bots"], this["bot_share"]))
+
+
+def daily_trend_table(rows):
+    """Plain day-by-day sessions/users table — always real, always available."""
+    if not rows:
+        return ""
+    body = "".join(
+        "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+            esc(r["date"]), "{:,}".format(r["sessions"]),
+            "{:,}".format(r["users"]), "{:,}".format(r["bots"]))
+        for r in rows)
+    return (
+        "<h2>Day by day (most recent %d days)</h2>"
+        "<table><thead><tr><th>Date</th><th>Sessions</th>"
+        "<th>Unique users</th><th>Bot sessions</th></tr></thead>"
+        "<tbody>%s</tbody></table>" % (len(rows), body))
+
+
 def movers_table(title, movers):
     if not movers:
         return ""
+    has_comparison = movers[0]["prev"] is not None
     rows = []
     for m in movers:
+        if not has_comparison:
+            rows.append("<tr><td>%s</td><td>%s</td></tr>" % (
+                esc(m["value"]), "{:,}".format(m["sessions"])))
+            continue
         if m["delta"] > 0:
             cls, arrow = "up", "▲"
         elif m["delta"] < 0:
@@ -265,16 +313,18 @@ def movers_table(title, movers):
             '<td class="%s">%s %+d</td></tr>' % (
                 esc(m["value"]), "{:,}".format(m["sessions"]),
                 "{:,}".format(m["prev"]), cls, arrow, m["delta"]))
+    if has_comparison:
+        head = "<th>%s</th><th>This week</th><th>Last week</th><th>Change</th>" % esc(title)
+    else:
+        head = "<th>%s</th><th>This week</th>" % esc(title)
     return (
         "<h2>%s</h2>"
-        "<table><thead><tr><th>%s</th><th>This week</th>"
-        "<th>Last week</th><th>Change</th></tr></thead>"
-        "<tbody>%s</tbody></table>" % (esc(title), esc(title),
-                                        "".join(rows)))
+        "<table><thead><tr>%s</tr></thead>"
+        "<tbody>%s</tbody></table>" % (esc(title), head, "".join(rows)))
 
 
 def build_html(this, last, baseline, strengthened, weakened,
-               page_movers, source_movers, generated):
+               page_movers, source_movers, generated, recent_rows):
     def li(items, cls):
         if not items:
             return '<li class="muted">None</li>'
@@ -292,8 +342,10 @@ def build_html(this, last, baseline, strengthened, weakened,
             + kpi_row("Bot share", this["bot_share"], last["bot_share"], "{:.1f}%")
             + "</tbody></table>")
     elif this:
-        kpis = ("<p class='muted'>Only one week of data so far — "
-                "week-over-week comparison will appear next week.</p>")
+        kpis = (
+            "<p class='muted'>Not enough history yet for a week-over-week "
+            "comparison — showing this week's real totals instead.</p>"
+            + solo_kpi_table(this))
     else:
         kpis = "<p class='muted'>No data available yet.</p>"
 
@@ -305,6 +357,17 @@ def build_html(this, last, baseline, strengthened, weakened,
                 baseline["total_days"],
                 "{:,}".format(baseline["avg_sessions_week"]),
                 "{:,}".format(baseline["avg_users_week"])))
+
+    if this and last:
+        changed_section = (
+            "<h2>What changed</h2><div class='cols'>"
+            "<div class='card good'><h3>Strengthened</h3><ul>%s</ul></div>"
+            "<div class='card bad'><h3>Weakened</h3><ul>%s</ul></div></div>"
+            % (li(strengthened, "up"), li(weakened, "down")))
+    else:
+        changed_section = ""
+
+    trend = daily_trend_table(recent_rows)
 
     return """<!doctype html>
 <html><head><meta charset="utf-8">
@@ -338,23 +401,21 @@ def build_html(this, last, baseline, strengthened, weakened,
 {kpis}
 {base_note}
 
-<h2>What changed</h2>
-<div class="cols">
-  <div class="card good"><h3>✅ Strengthened</h3><ul>{strong}</ul></div>
-  <div class="card bad"><h3>⚠️ Weakened</h3><ul>{weak}</ul></div>
-</div>
+{changed_section}
 
+{trend}
 {pages}
 {sources}
 
 <footer>Built from clarity_history.sqlite — the rolling history collected by
-fetch_daily.py. No API calls were made to generate this report.</footer>
+fetch_daily.py. All figures above are the raw stored totals; nothing here is
+estimated or invented. No API calls were made to generate this report.</footer>
 </body></html>""".format(
         generated=esc(generated),
         kpis=kpis,
         base_note=base_note,
-        strong=li(strengthened, "up"),
-        weak=li(weakened, "down"),
+        changed_section=changed_section,
+        trend=trend,
         pages=movers_table("Top pages", page_movers),
         sources=movers_table("Top traffic sources", source_movers),
     )
@@ -402,8 +463,9 @@ def main():
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
+    recent_rows = list(reversed(rows[-14:]))  # newest first, at most 2 weeks
     html = build_html(this, last, baseline, strengthened, weakened,
-                      page_movers, source_movers, generated)
+                      page_movers, source_movers, generated, recent_rows)
     html_path = os.path.join(SCRIPT_DIR, "MasonMart_Weekly_Report_%s.html" % stamp)
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(html)
@@ -412,14 +474,18 @@ def main():
     csv_path = os.path.join(SCRIPT_DIR, "weekly_summary_%s.csv" % stamp)
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["metric", "last_week", "this_week", "wow_pct"])
+        metrics = ["sessions", "users", "pps", "bots", "bot_share"]
+        labels = ["sessions", "unique_users", "pages_per_session",
+                  "bot_sessions", "bot_share_pct"]
         if this and last:
-            for name, key, fmt in [
-                ("sessions", "sessions", None), ("unique_users", "users", None),
-                ("pages_per_session", "pps", None), ("bot_sessions", "bots", None),
-                ("bot_share_pct", "bot_share", None)]:
-                w.writerow([name, last[key], this[key],
+            w.writerow(["metric", "last_week", "this_week", "wow_pct"])
+            for label, key in zip(labels, metrics):
+                w.writerow([label, last[key], this[key],
                             pct_change(this[key], last[key])])
+        elif this:
+            w.writerow(["metric", "this_week"])
+            for label, key in zip(labels, metrics):
+                w.writerow([label, this[key]])
 
     print("Wrote:")
     print("  " + html_path)

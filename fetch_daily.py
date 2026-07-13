@@ -125,10 +125,15 @@ def main():
             for block in data:
                 for item in block.get("information", []):
                     records += 1
+                    # Only the "Traffic" metric block carries these fields;
+                    # other blocks (DeadClickCount, ScrollDepth, ...) don't,
+                    # so skip them to avoid summing unrelated zeros/garbage.
+                    if block.get("metricName") != "Traffic":
+                        continue
                     s = int(item.get("totalSessionCount", 0))
                     b = int(item.get("totalBotSessionCount", 0))
-                    u = int(item.get("distantUserCount", 0))
-                    p = float(item.get("PagesPerSessionPercentage", 0))
+                    u = int(item.get("distinctUserCount", 0))
+                    p = float(item.get("pagesPerSessionPercentage", 0))
                     # Only count totals from first dimension set (avoid double counting)
                     if "Browser" in dims:
                         total_sessions += s
