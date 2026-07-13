@@ -3,7 +3,8 @@ name: Clarity Daily Fetch
 'on':
   workflow_dispatch:
   schedule:
-    - cron: "50 8 * * *"   # 14:20 IST daily
+    - cron: "50 8 * * *"   # 14:20 IST daily fetch
+    - cron: "0 9 * * 1"    # 14:30 IST every Monday -> weekly report
 
 permissions:
   contents: write
@@ -75,5 +76,61 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update Clarity daily report"
+            git push
+          fi
+
+  weekly-report:
+    # Runs only on the Monday schedule or a manual run, and only AFTER the
+    # daily fetch job has finished committing the latest data.
+    needs: fetch
+    if: >-
+      github.event.schedule == '0 9 * * 1' ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository (latest main, incl. today's fetch)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate weekly report
+        run: python weekly_report.py
+
+      - name: Show generated files
+        if: always()
+        run: |
+          echo "### Clarity Weekly Report" >> $GITHUB_STEP_SUMMARY
+          echo "Run time IST: $(TZ='Asia/Kolkata' date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          ls -lh MasonMart_Weekly_Report_*.html weekly_summary_*.csv 2>/dev/null >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Upload weekly report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clarity-weekly-report
+          path: |
+            MasonMart_Weekly_Report_*.html
+            weekly_summary_*.csv
+
+      - name: Commit weekly report
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add MasonMart_Weekly_Report_*.html weekly_summary_*.csv
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Add Clarity weekly report"
             git push
           fi
