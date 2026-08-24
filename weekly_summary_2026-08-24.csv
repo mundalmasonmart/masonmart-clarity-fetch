@@ -1,0 +1,6 @@
+metric,last_week,this_week,wow_pct
+sessions,464,516,11.2
+unique_users,657,694,5.6
+pages_per_session,2.68,2.58,-3.7
+bot_sessions,195,191,-2.1
+bot_share_pct,29.6,27.0,-8.8
